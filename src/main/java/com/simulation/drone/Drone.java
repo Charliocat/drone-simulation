@@ -1,17 +1,21 @@
 package com.simulation.drone;
 
-import java.util.Queue;
-
-import com.simulation.common.Movement;
-import com.simulation.control.Dispatcher;
-import com.simulation.events.TrafficEvent;
-
-import akka.actor.AbstractLoggingActor;
+import akka.actor.AbstractActor;
 import akka.actor.ActorSelection;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
+import com.simulation.common.Coordinates;
+import com.simulation.common.Movement;
+import com.simulation.control.Dispatcher;
+import com.simulation.events.TrafficEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class Drone extends AbstractLoggingActor {
+import java.util.Queue;
+
+public class Drone extends AbstractActor {
+
+    private static final Logger log = LoggerFactory.getLogger(Drone.class);
 
     private String droneId;
     private ActorSelection trafficReporter;
@@ -46,16 +50,17 @@ public class Drone extends AbstractLoggingActor {
         }
 
         trafficReportEvent(locations.poll());
-        //drone.tell(locations.poll(), self());
     }
 
     private void trafficReportEvent(Movement movement) {
-        TrafficEvent trafficEvent = new TrafficEvent(droneId, movement.getCoordinates(), movement.getTime());
+        Coordinates coordinates = movement.getCoordinates();
+        log.info("Drone {} moving to coordinates: {} {}", droneId, coordinates.getLatitude(), coordinates.getLongitude());
+        TrafficEvent trafficEvent = new TrafficEvent(droneId, coordinates, movement.getTime());
         trafficReporter.tell(trafficEvent, self());
     }
 
     private void shutDown(Dispatcher.Events events) {
-        log().info("Drone {} is shutting down", droneId);
+        log.info("Drone {} is shutting down", droneId);
         context().stop(self());
     }
 

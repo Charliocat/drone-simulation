@@ -1,17 +1,21 @@
 package com.simulation.control;
 
-import akka.actor.AbstractLoggingActor;
+import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.simulation.common.Timer;
 import com.simulation.drone.Drone;
-import com.simulation.repository.LocationRepo;
 import com.simulation.events.TimeEvent;
+import com.simulation.repository.LocationRepo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.util.List;
 
-public class Dispatcher extends AbstractLoggingActor {
+public class Dispatcher extends AbstractActor {
+
+    private static final Logger log = LoggerFactory.getLogger(Dispatcher.class);
 
     public enum Events {
         SHUT_DOWN, NEXT_MOVE
@@ -53,7 +57,7 @@ public class Dispatcher extends AbstractLoggingActor {
 
     private void handleEvent(TimeEvent event) {
         if (event.getTime().isAfter(endTime)) {
-            log().info("Time to shut down: {}", endTime);
+            log.info("Time to shut down: {}", endTime);
             sendTerminate();
             return;
         }

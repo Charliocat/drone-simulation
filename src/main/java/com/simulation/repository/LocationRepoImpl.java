@@ -26,6 +26,10 @@ public class LocationRepoImpl implements LocationRepo {
         return locations.get(droneId);
     }
 
+    public Map<String, Queue<Movement>> getAllDroneLocations() {
+        return locations;
+    }
+
     private void loadMovementsForDrone(String droneId){
         locations.put(droneId, readCoordinates(droneId));
     }

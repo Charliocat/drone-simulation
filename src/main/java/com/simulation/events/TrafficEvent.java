@@ -29,7 +29,7 @@ public class TrafficEvent {
     @Override
     public String toString() {
         return "TrafficReport{" +
-               ", droneId='" + id + '\'' +
+               " droneId='" + id + '\'' +
                ", time=" + time +
                ", speed=" + speed +
                ", trafficCondition=" + trafficCondition +
