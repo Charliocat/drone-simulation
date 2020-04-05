@@ -1,5 +1,7 @@
 package com.simulation.reporter;
 
+import java.util.List;
+
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
@@ -35,13 +37,17 @@ public class TrafficReporter extends AbstractActor {
     }
 
     private boolean stationInRange(Coordinates dronePosition) {
-        for(Coordinates stationCoordinates : stationRepo.getStationsCoordinates()) {
-            double distance = haversineDistance(stationCoordinates.getLatitude(), stationCoordinates.getLongitude(),
-                                       dronePosition.getLatitude(), dronePosition.getLongitude());
+        QuadTree quadtree = stationRepo.getQuadtree();
+        List<Coordinates> found = quadtree.query(dronePosition);
+        for (Coordinates node: found) {
+            double distance2 = haversineDistance(node.getLatitude(),
+                                                 node.getLongitude(),
+                                                 dronePosition.getLatitude(), dronePosition.getLongitude());
 
-            if (distance <= MAX_DISTANCE_TO_STATION)
+            if (distance2 <= MAX_DISTANCE_TO_STATION)
                 return true;
         }
+
         return false;
     }
 
