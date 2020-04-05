@@ -8,5 +8,4 @@ import java.util.Queue;
 
 public interface LocationRepo {
     Queue<Movement> getLocations(String droneId);
-    Map<String, Queue<Movement>> getAllDroneLocations();
 }
