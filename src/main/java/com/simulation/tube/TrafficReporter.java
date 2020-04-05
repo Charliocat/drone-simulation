@@ -26,9 +26,9 @@ public class TrafficReporter extends AbstractLoggingActor {
     }
 
     private void handleEvent(TrafficEvent trafficEvent) {
-//        log().info(trafficEvent.toString());
-        if (stationInRange(trafficEvent.coordinates))
-            log().info(trafficEvent.toString());
+       log().info(trafficEvent.toString());
+//        if (stationInRange(trafficEvent.coordinates))
+            //log().info(trafficEvent.toString());
     }
 
     private boolean stationInRange(Coordinates dronePosition) {
