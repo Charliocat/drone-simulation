@@ -4,9 +4,12 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import com.simulation.common.Timer;
 import com.simulation.control.Dispatcher;
-import com.simulation.drone.LocationService;
-import com.simulation.drone.LocationServiceImpl;
+import com.simulation.repository.LocationRepo;
+import com.simulation.repository.LocationRepoImpl;
 import com.simulation.events.TimeEvent;
+import com.simulation.repository.StationRepo;
+import com.simulation.repository.StationRepoImpl;
+import com.simulation.tube.TrafficReporter;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -20,12 +23,15 @@ public class Main {
     public static void main(String[] args) {
         List<String> registeredDrones = new ArrayList<>();
         registeredDrones.add("5937");
-        //registeredDrones.add("5937");
+        registeredDrones.add("6043");
 
-        LocationService locationService = new LocationServiceImpl(registeredDrones);
+        LocationRepo locationRepo = new LocationRepoImpl(registeredDrones);
 
         ActorSystem system = ActorSystem.create("simulation");
-        ActorRef dispatcher = system.actorOf(Dispatcher.props(registeredDrones, locationService), "mainDispatcher");
+        ActorRef dispatcher = system.actorOf(Dispatcher.props(registeredDrones, locationRepo), "mainDispatcher");
+
+        StationRepo stationRepo = new StationRepoImpl();
+        system.actorOf(TrafficReporter.props(stationRepo).withDispatcher("TrafficReporter"), "trafficReporter");
 
         Timer timer = new Timer("2011-03-22 08:05:00", "2011-03-22 08:30:00");
         ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
@@ -36,7 +42,10 @@ public class Main {
                 if (event.isAfter(timer.getEndTime()))
                     initShutdown();
 
-                dispatcher.tell(new TimeEvent(timer.getTime()), ActorRef.noSender());
+                if (dispatcher.isTerminated())
+                    initShutdown();
+                else
+                    dispatcher.tell(new TimeEvent(timer.getTime()), ActorRef.noSender());
             }
 
             private void initShutdown() {

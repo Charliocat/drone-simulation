@@ -1,4 +1,4 @@
-package com.simulation.drone;
+package com.simulation.repository;
 
 import com.simulation.common.Coordinates;
 import com.simulation.common.Movement;
@@ -9,12 +9,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class LocationServiceImpl implements LocationService {
+public class LocationRepoImpl implements LocationRepo {
 
     private final List<String> registeredDrones;
     private Map<String, Queue<Movement>> locations = new HashMap<>();
 
-    public LocationServiceImpl(List<String> registeredDrones) {
+    public LocationRepoImpl(List<String> registeredDrones) {
         this.registeredDrones = registeredDrones;
         for(String droneId: registeredDrones) {
             loadMovementsForDrone(droneId);

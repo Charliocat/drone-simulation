@@ -1,4 +1,4 @@
-package com.simulation.tube;
+package com.simulation.repository;
 
 import com.simulation.common.Coordinates;
 
@@ -9,11 +9,11 @@ import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
 
-public class StationRepository {
+public class StationRepoImpl implements StationRepo {
 
     private Set<Coordinates> tubeStations = new HashSet<>();
 
-    public StationRepository() {
+    public StationRepoImpl() {
         init();
     }
 
@@ -36,4 +36,8 @@ public class StationRepository {
         tubeStations.add(new Coordinates(tokens[1], tokens[2]));
     }
 
+    @Override
+    public Set<Coordinates> getStationsCoordinates() {
+        return tubeStations;
+    }
 }

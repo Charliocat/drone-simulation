@@ -1,11 +1,9 @@
-package com.simulation.drone;
+package com.simulation.repository;
 
 import com.simulation.common.Movement;
 
 import java.util.Queue;
 
-public interface LocationService {
-
+public interface LocationRepo {
     Queue<Movement> getLocations(String droneId);
-
 }

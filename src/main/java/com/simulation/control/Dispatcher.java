@@ -5,8 +5,7 @@ import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.simulation.common.Timer;
 import com.simulation.drone.Drone;
-import com.simulation.drone.DroneHandler;
-import com.simulation.drone.LocationService;
+import com.simulation.repository.LocationRepo;
 import com.simulation.events.TimeEvent;
 
 import java.time.Instant;
@@ -20,15 +19,15 @@ public class Dispatcher extends AbstractLoggingActor {
 
     private Instant endTime = Timer.getInstantFromString("2011-03-22 08:10:00");
     private List<String> registeredDrones;
-    private LocationService locationService;
+    private LocationRepo locationRepo;
 
-    public Dispatcher(List<String> registeredDrones, LocationService locationService) {
+    public Dispatcher(List<String> registeredDrones, LocationRepo locationRepo) {
         this.registeredDrones = registeredDrones;
-        this.locationService = locationService;
+        this.locationRepo = locationRepo;
     }
 
-    public static Props props(List<String> registeredDrones, LocationService locationService) {
-        return Props.create(Dispatcher.class, registeredDrones, locationService);
+    public static Props props(List<String> registeredDrones, LocationRepo locationRepo) {
+        return Props.create(Dispatcher.class, registeredDrones, locationRepo);
     }
 
     @Override
@@ -39,8 +38,9 @@ public class Dispatcher extends AbstractLoggingActor {
     }
 
     private void initDroneHandler(String droneId) {
-        getContext().actorOf(DroneHandler.props(droneId, locationService.getLocations(droneId)), "Dispatcher" + droneId);
-        getContext().actorOf(Drone.props(droneId).withDispatcher("DroneDispatcher" + droneId), "Drone" + droneId);
+        getContext().actorOf(Drone.props(droneId, locationRepo.getLocations(droneId))
+                                  .withDispatcher("DroneDispatcher" + droneId)
+                                  .withMailbox("bounded-mailbox"), "Drone" + droneId);
     }
 
     @Override
@@ -55,6 +55,7 @@ public class Dispatcher extends AbstractLoggingActor {
         if (event.getTime().isAfter(endTime)) {
             log().info("Time to shut down: {}", endTime);
             sendTerminate();
+            return;
         }
 
         getContext().getChildren().forEach(

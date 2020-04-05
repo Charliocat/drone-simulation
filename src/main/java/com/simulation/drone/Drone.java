@@ -1,59 +1,62 @@
 package com.simulation.drone;
 
-import akka.actor.AbstractLoggingActor;
-import akka.actor.Props;
-import akka.dispatch.BoundedMessageQueueSemantics;
-import akka.dispatch.RequiresMessageQueue;
-import akka.japi.pf.ReceiveBuilder;
-import com.simulation.control.Dispatcher;
+import java.util.Queue;
+
 import com.simulation.common.Movement;
+import com.simulation.control.Dispatcher;
+import com.simulation.events.TrafficEvent;
 
-import java.time.Instant;
+import akka.actor.AbstractLoggingActor;
+import akka.actor.ActorSelection;
+import akka.actor.Props;
+import akka.japi.pf.ReceiveBuilder;
 
-public class Drone extends AbstractLoggingActor implements RequiresMessageQueue<BoundedMessageQueueSemantics> {
+public class Drone extends AbstractLoggingActor {
 
-    interface Message { }
+    private String droneId;
+    private ActorSelection trafficReporter;
+    private Queue<Movement> locations;
 
-    static class SayHello implements Message {
-        public final String message;
-
-        SayHello(String message) {
-            this.message = message;
-        }
+    public Drone(String droneId, Queue<Movement> locations) {
+        this.droneId = droneId;
+        this.locations = locations;
     }
 
-    private String id;
-
-
-    public Drone(String id) {
-        this.id = id;
+    public static Props props(String droneId, Queue<Movement> locations) {
+        return Props.create(Drone.class, droneId, locations);
     }
 
-    public static Props props(String id) {
-        return Props.create(Drone.class, id);
+    @Override
+    public void preStart() {
+        trafficReporter = getContext().actorSelection("../../trafficReporter");
     }
 
     @Override
     public Receive createReceive() {
         return ReceiveBuilder.create()
-                .match(SayHello.class, this::parseMessage)
+                .matchEquals(Dispatcher.Events.NEXT_MOVE, this::handleNextPosition)
                 .matchEquals(Dispatcher.Events.SHUT_DOWN, this::shutDown)
-                .match(Movement.class, nextPosition -> {
-                    log().info("Drone {} moving to coordinates: {}", id, nextPosition.getCoordinates());
-                })
                 .build();
     }
 
+    private void handleNextPosition(Dispatcher.Events event) {
+        if (locations.isEmpty()) {
+            shutDown(event);
+            return;
+        }
+
+        trafficReportEvent(locations.poll());
+        //drone.tell(locations.poll(), self());
+    }
+
+    private void trafficReportEvent(Movement movement) {
+        TrafficEvent trafficEvent = new TrafficEvent(droneId, movement.getCoordinates(), movement.getTime());
+        trafficReporter.tell(trafficEvent, self());
+    }
+
     private void shutDown(Dispatcher.Events events) {
-        log().info("Drone {} is shutting down", id);
+        log().info("Drone {} is shutting down", droneId);
         context().stop(self());
-    }
-
-    private void handleEvent(Instant instant) {
-    }
-
-    private void parseMessage(SayHello message) {
-        log().info(message.message + " from drone: " + id);
     }
 
 }
