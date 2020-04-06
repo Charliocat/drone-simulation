@@ -6,14 +6,14 @@
       <level>INFO</level>
     </filter>
     <encoder>
-      <pattern>[%date{ISO8601}] [%level] [%logger] - %msg {%mdc}%n</pattern>
+      <pattern>%msg %n</pattern>
     </encoder>
   </appender>
 
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
     <file>target/drone-simulation.log</file>
     <encoder>
-      <pattern>[%date{ISO8601}] [%level] [%logger]- %msg {%mdc}%n</pattern>
+      <pattern>%msg %n</pattern>
     </encoder>
   </appender>
 

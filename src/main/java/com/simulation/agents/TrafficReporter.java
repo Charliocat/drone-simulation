@@ -1,17 +1,14 @@
-package com.simulation.reporter;
+package com.simulation.agents;
 
-import akka.actor.AbstractActor;
+import akka.actor.AbstractLoggingActor;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.simulation.common.Coordinates;
 import com.simulation.events.TrafficEvent;
 import com.simulation.repository.StationRepo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class TrafficReporter extends AbstractActor {
+public class TrafficReporter extends AbstractLoggingActor {
 
-    private static final Logger log = LoggerFactory.getLogger(TrafficReporter.class);
     private static final int MAX_DISTANCE_TO_STATION = 350;// meters
 
     private StationRepo stationRepo;
@@ -31,7 +28,7 @@ public class TrafficReporter extends AbstractActor {
 
     private void handleEvent(TrafficEvent trafficEvent) {
         if (stationInRange(trafficEvent.coordinates))
-            log.info(trafficEvent.toString());
+            log().info(trafficEvent.toString());
     }
 
     private boolean stationInRange(Coordinates dronePosition) {

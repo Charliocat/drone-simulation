@@ -2,10 +2,10 @@ package com.simulation;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import com.simulation.common.Timer;
+import com.simulation.control.Timer;
 import com.simulation.control.Dispatcher;
 import com.simulation.events.TimeEvent;
-import com.simulation.reporter.TrafficReporter;
+import com.simulation.agents.TrafficReporter;
 import com.simulation.repository.LocationRepo;
 import com.simulation.repository.LocationRepoImpl;
 import com.simulation.repository.StationRepo;

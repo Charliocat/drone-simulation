@@ -1,4 +1,4 @@
-package com.simulation.common;
+package com.simulation.control;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
