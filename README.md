@@ -53,6 +53,8 @@ The parts of the application are:
 - `Dron`: Handles data and sends their position to the TrafficReporter
 - `TrafficReporter`: Handles data from drones and checks their distance to the stations. Prints Report if corresponds.
 
+### Logs
+Each run a new drone-simulation.log file is created with the last execution output.
 
 [JDK 8]: https://jdk.java.net/8/
 [Maven]: https://maven.apache.org/install.html
